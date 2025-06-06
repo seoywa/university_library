@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
 import { Toaster } from "@/components/ui/toaster";
+import { auth } from "@/auth";
+import { SessionProvider } from "next-auth/react";
 
 const ibmPlexSans = localFont({
   src: [
@@ -24,15 +26,19 @@ export const metadata: Metadata = {
   description: "A book borrowing university library management",
 };
 
-const AppLayout = ({ children }: { children: React.ReactNode }) => {
+const AppLayout = async ({ children }: { children: React.ReactNode }) => {
+  const session = await auth()
+
   return (
     <html lang="en">
-      <body
-        className={`${ibmPlexSans.className} ${bebasNeue.variable} antialiased`}
-      >
-        {children}
-        <Toaster />
-      </body>
+      <SessionProvider session={session}>
+        <body
+          className={`${ibmPlexSans.className} ${bebasNeue.variable} antialiased`}
+        >
+          {children}
+          <Toaster />
+        </body>
+      </SessionProvider>
     </html>
   );
 };

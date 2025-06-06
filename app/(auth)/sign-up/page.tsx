@@ -1,6 +1,7 @@
 'use client'
 
 import AuthForm, { signUpSchema } from '@/components/AuthForm'
+import { signUp } from '@/lib/actions/auth'
 import React from 'react'
 
 const SigninPage = () => {
@@ -12,7 +13,7 @@ const SigninPage = () => {
       universityId: 0,
       universityCard: ''
     }} 
-      onSubmit={() => {}}
+      onSubmit={signUp}
     />
   )
 }
