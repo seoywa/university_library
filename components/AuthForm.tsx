@@ -1,4 +1,3 @@
- 
 "use client";
 
 import React from "react";
@@ -25,9 +24,9 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { FIELD_NAMES, FIELD_TYPES } from "@/constants";
-import ImageUpload from "./ImageUpload";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import FileUpload from "./FileUpload";
 
 export const signUpSchema = z.object({
   fullName: z.string().min(3),
@@ -66,20 +65,21 @@ const AuthForm = <T extends FieldValues>({
 
   const handleSubmit: SubmitHandler<T> = async (data) => {
     const result = await onSubmit(data);
-    if (result.success ) {
+    if (result.success) {
       toast({
-        title: 'Success',
-        description: isSignIn ? 'You have successfully signed in' : 'You have successfully signed up'
-      })
-      router.push('/')
+        title: "Success",
+        description: isSignIn
+          ? "You have successfully signed in"
+          : "You have successfully signed up",
+      });
+      router.push("/");
     } else {
       toast({
-        title: `Error ${isSignIn ? 'signing in' : 'signing up'}`,
-        description: result.error ?? 'An error occurred',
-        variant: 'destructive'
-      })
+        title: `Error ${isSignIn ? "signing in" : "signing up"}`,
+        description: result.error ?? "An error occurred",
+        variant: "destructive",
+      });
     }
-
   };
 
   return (
@@ -94,43 +94,60 @@ const AuthForm = <T extends FieldValues>({
       </p>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 w-full">
-          
-          {Object.keys(defaultValues).map(field => (
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="space-y-6 w-full"
+        >
+          {Object.keys(defaultValues).map((field) => (
             <FormField
-            key={field}
-            control={form.control}
-            name={field as Path<T>}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="capitalize">{FIELD_NAMES[field.name as keyof typeof FIELD_NAMES]}</FormLabel>
-                <FormControl>
-                  {field.name === 'universityCard' ? (
-                    <ImageUpload onFileChange={field.onChange}/>
-                  ) : (
-                    <Input required type={FIELD_TYPES[field.name as keyof typeof FIELD_TYPES]} {...field} className="form-input" />
-                  )}
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              key={field}
+              control={form.control}
+              name={field as Path<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="capitalize">
+                    {FIELD_NAMES[field.name as keyof typeof FIELD_NAMES]}
+                  </FormLabel>
+                  <FormControl>
+                    {field.name === "universityCard" ? (
+                      <FileUpload
+                        onFileChange={field.onChange}
+                        type={"Image"}
+                        accept={"image/*"}
+                        placeholder={"Upload your ID"}
+                        folder={"ids"}
+                        variant={"dark"}
+                      />
+                    ) : (
+                      <Input
+                        required
+                        type={
+                          FIELD_TYPES[field.name as keyof typeof FIELD_TYPES]
+                        }
+                        {...field}
+                        className="form-input"
+                      />
+                    )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           ))}
 
           <Button type="submit" className="form-btn">
-            {isSignIn ? 'Sign In' : 'Sign Up'}
+            {isSignIn ? "Sign In" : "Sign Up"}
           </Button>
         </form>
       </Form>
 
       <p className="text-center text-base font-medium">
-        {isSignIn
-          ? "New to BookWise? "
-          : "Already have an account? "}
-        <Link href={isSignIn ? '/sign-up' : '/sign-in'} className="font-bold text-primary">
-          {isSignIn
-          ? "Create an account"
-          : "Sign in"}
+        {isSignIn ? "New to BookWise? " : "Already have an account? "}
+        <Link
+          href={isSignIn ? "/sign-up" : "/sign-in"}
+          className="font-bold text-primary"
+        >
+          {isSignIn ? "Create an account" : "Sign in"}
         </Link>
       </p>
     </div>

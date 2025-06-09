@@ -16,13 +16,17 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import FileUpload from "@/components/FileUpload";
+import ColorPicker from "../ColorPicker";
+import { createBook } from "@/lib/admin/actions/book";
+import { toast, useToast } from "@/hooks/use-toast";
 
 export const bookSchema = z.object({
   title: z.string().trim().min(2).max(100),
   description: z.string().trim().min(2).max(1000),
   author: z.string().trim().min(2).max(100),
   genre: z.string().trim().min(2).max(50),
-  rating: z.number().min(1).max(5),
+  rating: z.coerce.number().min(1).max(5),
   totalCopies: z.coerce.number().int().positive().lte(10000),
   coverUrl: z.string().nonempty(),
   coverColor: z
@@ -39,6 +43,7 @@ interface Props extends Partial<Book> {
 
 const BookForm = ({ type, ...book }: Props) => {
   const router = useRouter();
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof bookSchema>>({
     resolver: zodResolver(bookSchema),
@@ -56,7 +61,23 @@ const BookForm = ({ type, ...book }: Props) => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof bookSchema>) => {};
+  const onSubmit = async (values: z.infer<typeof bookSchema>) => {
+    const result = await createBook(values);
+    if (result.success) {
+      toast({
+        title: 'Success',
+        description: 'Book created successfully'
+      })
+
+      router.push(`/admin/books/${result.data.id}`)
+    } else {
+      toast({
+        title: 'Error',
+        description: result.message,
+        variant: 'destructive'
+      })
+    }
+  };
 
   return (
     <Form {...form}>
@@ -181,7 +202,7 @@ const BookForm = ({ type, ...book }: Props) => {
                 Book Cover
               </FormLabel>
               <FormControl>
-                FILEUPLOADCOMPONENT
+                <FileUpload onFileChange={field.onChange} type={"Image"} accept={"image/*"} placeholder={"Upload a book cover"} folder={"books/covers"} variant={"light"} value={field.value}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -197,7 +218,7 @@ const BookForm = ({ type, ...book }: Props) => {
                 Cover Color
               </FormLabel>
               <FormControl>
-                COLORPICKER
+                <ColorPicker onPickerChange={field.onChange} value={field.value} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -234,7 +255,7 @@ const BookForm = ({ type, ...book }: Props) => {
                 Book Trailer
               </FormLabel>
               <FormControl>
-                FILEUPLOADCOMPONENT
+                <FileUpload onFileChange={field.onChange} type={"Video"} accept={"video/*"} placeholder={"Upload a book trailer"} folder={"books/videos"} variant={"light"} value={field.value}/>
               </FormControl>
               <FormMessage />
             </FormItem>
